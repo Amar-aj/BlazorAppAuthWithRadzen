@@ -1,30 +1,49 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">BlazorAppAuthWithRadzen</a>
-    </div>
-</div>
+﻿@using BlazorAppAuthWithRadzen.Client.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject HttpClient Http
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+ <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+            <RadzenLabel Text="Header" />
+               @* render mode don't really need here but main application used it *@
+            <UserInfoComponent @rendermode="InteractiveAuto" />
+            @* <UserInfo /> *@
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Responsive="false" Style="width: max-content">
+        <RadzenPanelMenu DisplayStyle="@(sidebarExpanded ? MenuItemDisplayStyle.IconAndText : MenuItemDisplayStyle.Icon)" ShowArrow="false">
+            <RadzenPanelMenuItem Text="Overview" Icon="home" Path=""/>
+            <RadzenPanelMenuItem Text="Counter" Icon="auto_awesome" Path="counter" />
+            <RadzenPanelMenuItem Text="Counter1" Icon="auto_awesome" Path="counter1" />
+            <RadzenPanelMenuItem Text="weather" Icon="auto_awesome" Path="weather" />
+            <RadzenPanelMenuItem Text="Protected" Icon="auto_awesome" Path="protected" />
+            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
+            <RadzenPanelMenuItem Text="UI Fundamentals" Icon="auto_awesome">
+                <RadzenPanelMenuItem Text="Themes" Icon="color_lens" />
+                <RadzenPanelMenuItem Text="Colors" Icon="invert_colors" />
+            </RadzenPanelMenuItem>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+@code {
+    bool sidebarExpanded = true;
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    private bool isAuthenticated;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+    }
+
+    private async Task Logout()
+    {
+        await Http.GetAsync("Account/Logout");
+        isAuthenticated = false;
+        Navigation.NavigateTo("login");
+    }
+}

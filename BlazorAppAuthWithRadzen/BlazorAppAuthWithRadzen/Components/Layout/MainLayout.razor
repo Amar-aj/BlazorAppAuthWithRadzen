@@ -1,32 +1,12 @@
 ﻿@inherits LayoutComponentBase
+
 <RadzenComponents @rendermode="InteractiveAuto" />
-<RadzenLayout>
-    <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
-            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
-            <RadzenLabel Text="Header" />
-        </RadzenStack>
-    </RadzenHeader>
-    <RadzenSidebar Responsive="false" Style="width: max-content">
-        <RadzenPanelMenu DisplayStyle="@(sidebarExpanded ? MenuItemDisplayStyle.IconAndText : MenuItemDisplayStyle.Icon)" ShowArrow="false">
-            <RadzenPanelMenuItem Text="Overview" Icon="home" Path=""/>
-            <RadzenPanelMenuItem Text="Counter" Icon="auto_awesome" Path="counter" />
-            <RadzenPanelMenuItem Text="weather" Icon="auto_awesome" Path="weather" />
-            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" />
-            <RadzenPanelMenuItem Text="UI Fundamentals" Icon="auto_awesome">
-                <RadzenPanelMenuItem Text="Themes" Icon="color_lens" />
-                <RadzenPanelMenuItem Text="Colors" Icon="invert_colors" />
-            </RadzenPanelMenuItem>
-        </RadzenPanelMenu>
-    </RadzenSidebar>
+<RadzenLayout >
+    <NavMenu />
     <RadzenBody>
-            @Body
+        @Body
     </RadzenBody>
     <RadzenFooter>
         Footer
     </RadzenFooter>
 </RadzenLayout>
-
-@code {
-    bool sidebarExpanded = true;
-}

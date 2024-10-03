@@ -1,0 +1,100 @@
+﻿@page "/login222222"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using BlazorAppAuthWithRadzen.Client.Models
+@using System.Text.Json
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
+<h3>Login</h3>
+<RadzenTemplateForm TItem="LoginRequest" Data=@model Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+    <RadzenStack Gap="1rem" class="rz-p-sm-12">
+        <RadzenFormField Text="First Name" Variant="@variant">
+            <ChildContent>
+                <RadzenTextBox Name="UserName" @bind-Value=@model.UserName />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="UserName" Text="UserName is required." />
+            </Helper>
+        </RadzenFormField>
+        <RadzenFormField Text="Last Name" Variant="@variant">
+            <ChildContent>
+                <RadzenTextBox Name="Password" @bind-Value=@model.Password />
+            </ChildContent>
+            <Helper>
+                <RadzenRequiredValidator Component="Password" Text="Password is required." />
+            </Helper>
+        </RadzenFormField>
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Submit"></RadzenButton>
+    </RadzenStack>
+</RadzenTemplateForm>
+@code {
+    [CascadingParameter]
+    private HttpContext httpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    public LoginRequest model { get; set; } = new LoginRequest() { UserName = "aa", Password = "ss" };
+
+    [SupplyParameterFromQuery]
+    public string ReturnUrl { get; set; } = "/";
+
+    private string errorMessage;
+
+    Variant variant = Variant.Outlined;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // if (HttpMethods.IsGet(HttpContext.Request.Method))
+        // {
+        //     // Clear the existing external cookie to ensure a clean login process
+        //     await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        // }
+        // if (HttpContext is null)
+        // {
+        //     // If this code runs, we're currently rendering in interactive mode, so there is no HttpContext.
+        //     // The identity pages need to set cookies, so they require an HttpContext. To achieve this we
+        //     // must transition back from interactive mode to a server-rendered page.
+        //     Navigation.Refresh(forceReload: true);
+        // }
+    }
+    async Task OnSubmit(LoginRequest model)
+    {
+        if (model.UserName == "aa" && model.Password == "ss")
+        {
+            var claims = new List<Claim>
+                             {
+                                 new Claim(ClaimTypes.Name, "Demo"),
+                                 new Claim(ClaimTypes.NameIdentifier, "123456789"),
+                                 new Claim(ClaimTypes.Email, "ajjj@gmail.com"),
+                             };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // await HttpContext.SignInAsync(
+            //      CookieAuthenticationDefaults.AuthenticationScheme,
+            //      new ClaimsPrincipal(claimsIdentity));
+
+            var principal = new ClaimsPrincipal(claimsIdentity);
+
+            // Sign in the user
+            await httpContext.SignInAsync(principal);
+
+
+            Navigation.NavigateTo(ReturnUrl, true);
+        }
+        else
+        {
+            errorMessage = "Invalid login attempt.";
+        }
+
+        Console.WriteLine(errorMessage);
+        Console.WriteLine($"Submit: {JsonSerializer.Serialize(model, new JsonSerializerOptions() { WriteIndented = true })}");
+    }
+
+    void OnInvalidSubmit(FormInvalidSubmitEventArgs args)
+    {
+        Console.WriteLine($"InvalidSubmit: {JsonSerializer.Serialize(args, new JsonSerializerOptions() { WriteIndented = true })}");
+    }
+}

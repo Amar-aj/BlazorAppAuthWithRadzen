@@ -1,13 +1,41 @@
+using BlazorAppAuthWithRadzen.Auth;
+using BlazorAppAuthWithRadzen.Client.Auth;
 using BlazorAppAuthWithRadzen.Client.Pages;
 using BlazorAppAuthWithRadzen.Components;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Components.Authorization;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRadzenComponents();
+
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+// Add services to the container.
+var services = builder.Services;
+
+// Read base address from configuration
+var baseAddress = builder.Configuration["ApiSettings:BaseAddress"];
+services.AddHttpClient<BaseAuthenticationStateProvider>(client => { client.BaseAddress = new Uri(baseAddress); });
+
+services.AddControllers();
+
+services.AddCascadingAuthenticationState();
+services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+
+services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(
+        options =>
+        {
+            options.LoginPath = "/login";
+            options.AccessDeniedPath = "/access-denied";
+        });
+
+services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -28,9 +56,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorAppAuthWithRadzen.Client._Imports).Assembly);
-
+app.MapControllers();
+app.MapFallbackToFile("index.html");
 app.Run();
