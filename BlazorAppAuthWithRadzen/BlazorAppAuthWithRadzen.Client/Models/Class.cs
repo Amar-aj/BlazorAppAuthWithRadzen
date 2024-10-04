@@ -15,5 +15,6 @@ public class UserInfo
 {
     public required string user_id { get; set; }
     public required string user_name { get; set; }
+    public required string email { get; set; }
 
 }

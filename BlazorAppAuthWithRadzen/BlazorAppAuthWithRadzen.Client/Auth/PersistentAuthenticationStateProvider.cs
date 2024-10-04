@@ -24,7 +24,7 @@ internal class PersistentAuthenticationStateProvider : AuthenticationStateProvid
         List<Claim> claims = [
             new Claim(ClaimTypes.NameIdentifier, userInfo.user_id),
                 new Claim(ClaimTypes.Name, userInfo.user_name),
-                //new Claim(ClaimTypes.Email, userInfo.Email)
+                new Claim(ClaimTypes.Email, userInfo.email)
                 ];
 
         //if (!string.IsNullOrEmpty(userInfo.Roles))

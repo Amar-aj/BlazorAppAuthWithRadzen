@@ -112,6 +112,7 @@ internal sealed class PersistingRevalidatingAuthenticationStateProvider : Revali
                 state.PersistAsJson(nameof(UserInfo), new UserInfo
                 {
                     user_id = userId,
+                    email= email,
                     //Email = email,
                     user_name = name,
                     //Roles = rolesStr
